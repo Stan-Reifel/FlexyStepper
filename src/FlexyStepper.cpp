@@ -771,6 +771,8 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
   //
   setCurrentPositionInSteps(0L);    
 
+  setTargetPositionInSteps(0L);
+
   //
   // restore original velocity
   //
