@@ -56,6 +56,7 @@ class FlexyStepper
     void setCurrentPositionInMillimeter(float currentPositionInMillimeter);
     void setSpeedInMillimetersPerSecond(float speedInMillimetersPerSecond);
     void setAccelerationInMillimetersPerSecondPerSecond(float accelerationInMillimetersPerSecondPerSecond);
+    void setDecelerationInMillimetersPerSecondPerSecond(float decelerationInMillimetersPerSecondPerSecond);
     bool moveToHomeInMillimeters(long directionTowardHome, float speedInMillimetersPerSecond, long maxDistanceToMoveInMillimeters, int homeLimitSwitchPin);
     void moveRelativeInMillimeters(float distanceToMoveInMillimeters);
     void setTargetPositionRelativeInMillimeters(float distanceToMoveInMillimeters);
@@ -68,6 +69,7 @@ class FlexyStepper
     float getCurrentPositionInRevolutions();
     void setSpeedInRevolutionsPerSecond(float speedInRevolutionsPerSecond);
     void setAccelerationInRevolutionsPerSecondPerSecond(float accelerationInRevolutionsPerSecondPerSecond);
+    void setDecelerationInRevolutionsPerSecondPerSecond(float decelerationInRevolutionsPerSecondPerSecond);
     bool moveToHomeInRevolutions(long directionTowardHome, float speedInRevolutionsPerSecond, long maxDistanceToMoveInRevolutions, int homeLimitSwitchPin);
     void moveRelativeInRevolutions(float distanceToMoveInRevolutions);
     void setTargetPositionRelativeInRevolutions(float distanceToMoveInRevolutions);
@@ -79,6 +81,7 @@ class FlexyStepper
     long getCurrentPositionInSteps();
     void setSpeedInStepsPerSecond(float speedInStepsPerSecond);
     void setAccelerationInStepsPerSecondPerSecond(float accelerationInStepsPerSecondPerSecond);
+    void setDecelerationInStepsPerSecondPerSecond(float decelerationInStepsPerSecondPerSecond);
     bool moveToHomeInSteps(long directionTowardHome, float speedInStepsPerSecond, long maxDistanceToMoveInSteps, int homeSwitchPin);
     void moveRelativeInSteps(long distanceToMoveInSteps);
     void setTargetPositionRelativeInSteps(long distanceToMoveInSteps);
@@ -111,6 +114,8 @@ class FlexyStepper
     float desiredPeriod_InUSPerStep;
     float acceleration_InStepsPerSecondPerSecond;
     float acceleration_InStepsPerUSPerUS;
+    float deceleration_InStepsPerSecondPerSecond;
+    float deceleration_InStepsPerUSPerUS;
     float periodOfSlowestStep_InUS;
     float minimumPeriodForAStoppedMotion;
     float nextStepPeriod_InUS;

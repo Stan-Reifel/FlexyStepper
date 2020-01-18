@@ -221,6 +221,7 @@ FlexyStepper::FlexyStepper()
   targetPosition_InSteps = 0L;
   setSpeedInStepsPerSecond(200);
   setAccelerationInStepsPerSecondPerSecond(200.0);
+  setDecelerationInStepsPerSecondPerSecond(200.0);
   currentStepPeriod_InUS = 0.0;
   nextStepPeriod_InUS = 0.0;
 }
@@ -317,6 +318,20 @@ void FlexyStepper::setAccelerationInMillimetersPerSecondPerSecond(
 {
     setAccelerationInStepsPerSecondPerSecond(
       accelerationInMillimetersPerSecondPerSecond * stepsPerMillimeter);
+}
+
+
+
+//
+// set the rate of deceleration, units in millimeters/second/second
+//  Enter:  decelerationInMillimetersPerSecondPerSecond = rate of deceleration,  
+//          units in millimeters/second/second
+//
+void FlexyStepper::setDecelerationInMillimetersPerSecondPerSecond(
+                      float decelerationInMillimetersPerSecondPerSecond)
+{
+    setDecelerationInStepsPerSecondPerSecond(
+      decelerationInMillimetersPerSecondPerSecond * stepsPerMillimeter);
 }
 
 
@@ -493,6 +508,20 @@ void FlexyStepper::setAccelerationInRevolutionsPerSecondPerSecond(
 
 
 //
+// set the rate of deceleration, units in revolutions/second/second
+//  Enter:  decelerationInRevolutionsPerSecondPerSecond = rate of deceleration,  
+//          units in revolutions/second/second
+//
+void FlexyStepper::setDecelerationInRevolutionsPerSecondPerSecond(
+       float decelerationInRevolutionsPerSecondPerSecond)
+{
+    setDecelerationInStepsPerSecondPerSecond(
+      decelerationInRevolutionsPerSecondPerSecond * stepsPerRevolution);
+}
+
+
+
+//
 // home the motor by moving until the homing sensor is activated, then set the 
 //  position to zero, with units in revolutions
 //  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move in 
@@ -650,6 +679,24 @@ void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
 
   periodOfSlowestStep_InUS = 
       1000000.0 / sqrt(2.0 * acceleration_InStepsPerSecondPerSecond);
+  minimumPeriodForAStoppedMotion = periodOfSlowestStep_InUS / 2.8;
+}
+
+
+
+//
+// set the rate of deceleration, units in steps/second/second
+//  Enter:  decelerationInStepsPerSecondPerSecond = rate of deceleration, units in 
+//          steps/second/second
+//
+void FlexyStepper::setDecelerationInStepsPerSecondPerSecond(
+                     float decelerationInStepsPerSecondPerSecond)
+{
+  deceleration_InStepsPerSecondPerSecond = decelerationInStepsPerSecondPerSecond;
+  deceleration_InStepsPerUSPerUS = deceleration_InStepsPerSecondPerSecond / 1E12;
+
+  periodOfSlowestStep_InUS = 
+      1000000.0 / sqrt(2.0 * deceleration_InStepsPerSecondPerSecond);
   minimumPeriodForAStoppedMotion = periodOfSlowestStep_InUS / 2.8;
 }
 
@@ -851,7 +898,7 @@ void FlexyStepper::setTargetPositionToStop()
   // move the target position so that the motor will begin deceleration now
   //
   decelerationDistance_InSteps = (long) round(
-    5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriod_InUS * 
+    5E11 / (deceleration_InStepsPerSecondPerSecond * currentStepPeriod_InUS * 
     currentStepPeriod_InUS));
 
   if (directionOfMotion > 0)
@@ -1060,11 +1107,11 @@ void FlexyStepper::DeterminePeriodOfNextStep()
 
   //
   // determine the number of steps needed to go from the current speed down to a 
-  // velocity of 0, Steps = Velocity^2 / (2 * Acceleration)
+  // velocity of 0, Steps = Velocity^2 / (2 * Deceleration)
   //
   currentStepPeriodSquared = currentStepPeriod_InUS * currentStepPeriod_InUS;
   decelerationDistance_InSteps = (long) round(
-    5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
+    5E11 / (deceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
   
   
   //
@@ -1169,7 +1216,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 + a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS + acceleration_InStepsPerUSPerUS * 
+    nextStepPeriod_InUS = currentStepPeriod_InUS + deceleration_InStepsPerUSPerUS * 
       currentStepPeriodSquared * currentStepPeriod_InUS;
 
     if (nextStepPeriod_InUS > periodOfSlowestStep_InUS)
