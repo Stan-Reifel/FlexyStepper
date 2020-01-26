@@ -694,10 +694,6 @@ void FlexyStepper::setDecelerationInStepsPerSecondPerSecond(
 {
   deceleration_InStepsPerSecondPerSecond = decelerationInStepsPerSecondPerSecond;
   deceleration_InStepsPerUSPerUS = deceleration_InStepsPerSecondPerSecond / 1E12;
-
-  periodOfSlowestStep_InUS = 
-      1000000.0 / sqrt(2.0 * deceleration_InStepsPerSecondPerSecond);
-  minimumPeriodForAStoppedMotion = periodOfSlowestStep_InUS / 2.8;
 }
 
 
@@ -981,7 +977,7 @@ bool FlexyStepper::processMovement(void)
   // this delay almost nothing because there's so much code between rising & 
   // falling edges
   //
-  delayMicroseconds(2);       
+  //delayMicroseconds(2);       
   
   
   //
