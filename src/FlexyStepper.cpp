@@ -224,10 +224,14 @@ FlexyStepper::FlexyStepper()
   setDecelerationInStepsPerSecondPerSecond(200.0);
   currentStepPeriod_InUS = 0.0;
   nextStepPeriod_InUS = 0.0;
+  emergency_stop = false;
 }
 
 
-
+void FlexyStepper::emergencyStop()
+{
+  if (!motionComplete()) emergency_stop = true;
+}
 
 //
 // connect the stepper object to the IO pins
@@ -916,6 +920,15 @@ bool FlexyStepper::processMovement(void)
   unsigned long periodSinceLastStep_InUS;
   long distanceToTarget_Signed;
 
+  if (emergency_stop)
+  {
+    currentStepPeriod_InUS = 0.0;
+    nextStepPeriod_InUS = 0.0;
+    directionOfMotion = 0;
+	targetPosition_InSteps = currentPosition_InSteps;
+	emergency_stop = false;
+  	return(true);
+  }
 
   //
   // check if currently stopped

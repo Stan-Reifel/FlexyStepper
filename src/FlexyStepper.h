@@ -91,6 +91,8 @@ class FlexyStepper
     bool motionComplete();
     float getCurrentVelocityInStepsPerSecond(); 
     bool processMovement(void);
+    
+    void emergencyStop(void);
 
 
   private:
@@ -121,6 +123,7 @@ class FlexyStepper
     float nextStepPeriod_InUS;
     unsigned long lastStepTime_InUS;
     float currentStepPeriod_InUS;
+    bool emergency_stop;
 };
 
 // ------------------------------------ End ---------------------------------
