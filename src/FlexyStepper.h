@@ -34,7 +34,7 @@
 #ifndef FlexyStepper_h
 #define FlexyStepper_h
 
-#include <arduino.h>
+#include <Arduino.h>
 #include <stdlib.h>
 
 
