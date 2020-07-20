@@ -990,7 +990,7 @@ bool FlexyStepper::processMovement(void)
   // this delay almost nothing because there's so much code between rising & 
   // falling edges
   //
-  //delayMicroseconds(2);       
+	delayMicroseconds(1);       
   
   
   //
@@ -1119,8 +1119,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
   // velocity of 0, Steps = Velocity^2 / (2 * Deceleration)
   //
   currentStepPeriodSquared = currentStepPeriod_InUS * currentStepPeriod_InUS;
-  decelerationDistance_InSteps = (long) round(
-    5E11 / (deceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
+  decelerationDistance_InSteps = (long) round(5E11 / (deceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
   
   
   //

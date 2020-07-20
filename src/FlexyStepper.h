@@ -90,8 +90,7 @@ class FlexyStepper
     void setTargetPositionToStop();
     bool motionComplete();
     float getCurrentVelocityInStepsPerSecond(); 
-    bool processMovement(void);
-    
+    bool processMovement(void);    
     void emergencyStop(void);
 
 
