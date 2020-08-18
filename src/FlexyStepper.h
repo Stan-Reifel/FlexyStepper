@@ -62,6 +62,7 @@ class FlexyStepper
     void setTargetPositionRelativeInMillimeters(float distanceToMoveInMillimeters);
     void moveToPositionInMillimeters(float absolutePositionToMoveToInMillimeters);
     void setTargetPositionInMillimeters(float absolutePositionToMoveToInMillimeters);
+    float getTargetPositionInMillimeters();
     float getCurrentVelocityInMillimetersPerSecond();
    
     void setStepsPerRevolution(float motorStepPerRevolution);
@@ -87,6 +88,7 @@ class FlexyStepper
     void setTargetPositionRelativeInSteps(long distanceToMoveInSteps);
     void moveToPositionInSteps(long absolutePositionToMoveToInSteps);
     void setTargetPositionInSteps(long absolutePositionToMoveToInSteps);
+    long getTargetPositionInSteps();
     void setTargetPositionToStop();
     bool motionComplete();
     float getCurrentVelocityInStepsPerSecond(); 

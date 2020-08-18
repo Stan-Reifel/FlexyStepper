@@ -426,6 +426,11 @@ void FlexyStepper::setTargetPositionInMillimeters(
                                        stepsPerMillimeter));
 }
 
+float FlexyStepper::getTargetPositionInMillimeters()
+{
+	return getTargetPositionInSteps() / stepsPerMillimeter;
+}
+
 
 
 //
@@ -675,14 +680,12 @@ void FlexyStepper::setSpeedInStepsPerSecond(float speedInStepsPerSecond)
 //  Enter:  accelerationInStepsPerSecondPerSecond = rate of acceleration, units in 
 //          steps/second/second
 //
-void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
-                     float accelerationInStepsPerSecondPerSecond)
+void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(float accelerationInStepsPerSecondPerSecond)
 {
   acceleration_InStepsPerSecondPerSecond = accelerationInStepsPerSecondPerSecond;
   acceleration_InStepsPerUSPerUS = acceleration_InStepsPerSecondPerSecond / 1E12;
 
-  periodOfSlowestStep_InUS = 
-      1000000.0 / sqrt(2.0 * acceleration_InStepsPerSecondPerSecond);
+  periodOfSlowestStep_InUS = 1000000.0 / sqrt(2.0 * acceleration_InStepsPerSecondPerSecond);
   minimumPeriodForAStoppedMotion = periodOfSlowestStep_InUS / 2.8;
 }
 
@@ -693,8 +696,7 @@ void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
 //  Enter:  decelerationInStepsPerSecondPerSecond = rate of deceleration, units in 
 //          steps/second/second
 //
-void FlexyStepper::setDecelerationInStepsPerSecondPerSecond(
-                     float decelerationInStepsPerSecondPerSecond)
+void FlexyStepper::setDecelerationInStepsPerSecondPerSecond(float decelerationInStepsPerSecondPerSecond)
 {
   deceleration_InStepsPerSecondPerSecond = decelerationInStepsPerSecondPerSecond;
   deceleration_InStepsPerUSPerUS = deceleration_InStepsPerSecondPerSecond / 1E12;
@@ -882,7 +884,10 @@ void FlexyStepper::setTargetPositionInSteps(long absolutePositionToMoveToInSteps
   targetPosition_InSteps = absolutePositionToMoveToInSteps;
 }
 
-
+long FlexyStepper::getTargetPositionInSteps()
+{
+	return targetPosition_InSteps;
+}
 
 //
 // setup a "Stop" to begin the process of decelerating from the current velocity  
@@ -990,7 +995,7 @@ bool FlexyStepper::processMovement(void)
   // this delay almost nothing because there's so much code between rising & 
   // falling edges
   //
-	delayMicroseconds(1);       
+	delayMicroseconds(2);       
   
   
   //
@@ -1132,11 +1137,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     // check if need to start slowing down as we reach the target, or if we 
     // need to slow down because we are going too fast
     //
-    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || 
-        (nextStepPeriod_InUS < desiredPeriod_InUSPerStep))
-      slowDownFlag = true;
-    else 
-      speedUpFlag = true;
+    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)) slowDownFlag = true;
+    else speedUpFlag = true;
    }
 
 
@@ -1171,11 +1173,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     // check if need to start slowing down as we reach the target, or if we 
     // need to slow down because we are going too fast
     //
-    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || 
-        (nextStepPeriod_InUS < desiredPeriod_InUSPerStep))
-      slowDownFlag = true;
-    else 
-      speedUpFlag = true;
+    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)) slowDownFlag = true;
+    else speedUpFlag = true;
    }
 
 
@@ -1208,11 +1207,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 - a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS - acceleration_InStepsPerUSPerUS * 
-      currentStepPeriodSquared * currentStepPeriod_InUS;
-
-    if (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)
-      nextStepPeriod_InUS = desiredPeriod_InUSPerStep;
+    nextStepPeriod_InUS = currentStepPeriod_InUS - acceleration_InStepsPerUSPerUS * currentStepPeriodSquared * currentStepPeriod_InUS;
+    if (nextStepPeriod_InUS < desiredPeriod_InUSPerStep) nextStepPeriod_InUS = desiredPeriod_InUSPerStep;
   }
 
   
@@ -1224,11 +1220,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 + a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS + deceleration_InStepsPerUSPerUS * 
-      currentStepPeriodSquared * currentStepPeriod_InUS;
-
-    if (nextStepPeriod_InUS > periodOfSlowestStep_InUS)
-      nextStepPeriod_InUS = periodOfSlowestStep_InUS;
+    nextStepPeriod_InUS = currentStepPeriod_InUS + deceleration_InStepsPerUSPerUS * currentStepPeriodSquared * currentStepPeriod_InUS;
+    if (nextStepPeriod_InUS > periodOfSlowestStep_InUS) nextStepPeriod_InUS = periodOfSlowestStep_InUS;
   }
 }
 
