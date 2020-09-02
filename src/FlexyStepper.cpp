@@ -913,6 +913,8 @@ void FlexyStepper::setTargetPositionToStop()
 {
   long decelerationDistance_InSteps;
   
+  // if the motor is not running, do nothing!!!
+  if (directionOfMotion == 0) return;
   //
   // move the target position so that the motor will begin deceleration now
   //
