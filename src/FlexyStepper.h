@@ -56,11 +56,13 @@ class FlexyStepper
     void setCurrentPositionInMillimeter(float currentPositionInMillimeter);
     void setSpeedInMillimetersPerSecond(float speedInMillimetersPerSecond);
     void setAccelerationInMillimetersPerSecondPerSecond(float accelerationInMillimetersPerSecondPerSecond);
+    void setDecelerationInMillimetersPerSecondPerSecond(float decelerationInMillimetersPerSecondPerSecond);
     bool moveToHomeInMillimeters(long directionTowardHome, float speedInMillimetersPerSecond, long maxDistanceToMoveInMillimeters, int homeLimitSwitchPin);
     void moveRelativeInMillimeters(float distanceToMoveInMillimeters);
     void setTargetPositionRelativeInMillimeters(float distanceToMoveInMillimeters);
     void moveToPositionInMillimeters(float absolutePositionToMoveToInMillimeters);
     void setTargetPositionInMillimeters(float absolutePositionToMoveToInMillimeters);
+    float getTargetPositionInMillimeters();
     float getCurrentVelocityInMillimetersPerSecond();
    
     void setStepsPerRevolution(float motorStepPerRevolution);
@@ -68,6 +70,7 @@ class FlexyStepper
     float getCurrentPositionInRevolutions();
     void setSpeedInRevolutionsPerSecond(float speedInRevolutionsPerSecond);
     void setAccelerationInRevolutionsPerSecondPerSecond(float accelerationInRevolutionsPerSecondPerSecond);
+    void setDecelerationInRevolutionsPerSecondPerSecond(float decelerationInRevolutionsPerSecondPerSecond);
     bool moveToHomeInRevolutions(long directionTowardHome, float speedInRevolutionsPerSecond, long maxDistanceToMoveInRevolutions, int homeLimitSwitchPin);
     void moveRelativeInRevolutions(float distanceToMoveInRevolutions);
     void setTargetPositionRelativeInRevolutions(float distanceToMoveInRevolutions);
@@ -79,15 +82,18 @@ class FlexyStepper
     long getCurrentPositionInSteps();
     void setSpeedInStepsPerSecond(float speedInStepsPerSecond);
     void setAccelerationInStepsPerSecondPerSecond(float accelerationInStepsPerSecondPerSecond);
+    void setDecelerationInStepsPerSecondPerSecond(float decelerationInStepsPerSecondPerSecond);
     bool moveToHomeInSteps(long directionTowardHome, float speedInStepsPerSecond, long maxDistanceToMoveInSteps, int homeSwitchPin);
     void moveRelativeInSteps(long distanceToMoveInSteps);
     void setTargetPositionRelativeInSteps(long distanceToMoveInSteps);
     void moveToPositionInSteps(long absolutePositionToMoveToInSteps);
     void setTargetPositionInSteps(long absolutePositionToMoveToInSteps);
+    long getTargetPositionInSteps();
     void setTargetPositionToStop();
     bool motionComplete();
     float getCurrentVelocityInStepsPerSecond(); 
-    bool processMovement(void);
+    bool processMovement(void);    
+    void emergencyStop(void);
 
 
   private:
@@ -111,11 +117,16 @@ class FlexyStepper
     float desiredPeriod_InUSPerStep;
     float acceleration_InStepsPerSecondPerSecond;
     float acceleration_InStepsPerUSPerUS;
-    float periodOfSlowestStep_InUS;
-    float minimumPeriodForAStoppedMotion;
+    float deceleration_InStepsPerSecondPerSecond;
+    float deceleration_InStepsPerUSPerUS;
+    float acceleration_periodOfSlowestStep_InUS;
+    float acceleration_minimumPeriodForAStoppedMotion;
+    float deceleration_periodOfSlowestStep_InUS;
+    float deceleration_minimumPeriodForAStoppedMotion;
     float nextStepPeriod_InUS;
     unsigned long lastStepTime_InUS;
     float currentStepPeriod_InUS;
+    bool emergency_stop;
 };
 
 // ------------------------------------ End ---------------------------------

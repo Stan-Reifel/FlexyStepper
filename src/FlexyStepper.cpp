@@ -221,12 +221,17 @@ FlexyStepper::FlexyStepper()
   targetPosition_InSteps = 0L;
   setSpeedInStepsPerSecond(200);
   setAccelerationInStepsPerSecondPerSecond(200.0);
+  setDecelerationInStepsPerSecondPerSecond(200.0);
   currentStepPeriod_InUS = 0.0;
   nextStepPeriod_InUS = 0.0;
+  emergency_stop = false;
 }
 
 
-
+void FlexyStepper::emergencyStop()
+{
+  if (!motionComplete()) emergency_stop = true;
+}
 
 //
 // connect the stepper object to the IO pins
@@ -322,6 +327,20 @@ void FlexyStepper::setAccelerationInMillimetersPerSecondPerSecond(
 
 
 //
+// set the rate of deceleration, units in millimeters/second/second
+//  Enter:  decelerationInMillimetersPerSecondPerSecond = rate of deceleration,  
+//          units in millimeters/second/second
+//
+void FlexyStepper::setDecelerationInMillimetersPerSecondPerSecond(
+                      float decelerationInMillimetersPerSecondPerSecond)
+{
+    setDecelerationInStepsPerSecondPerSecond(
+      decelerationInMillimetersPerSecondPerSecond * stepsPerMillimeter);
+}
+
+
+
+//
 // home the motor by moving until the homing sensor is activated, then set the  
 // position to zero, with units in millimeters
 //  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move 
@@ -407,6 +426,11 @@ void FlexyStepper::setTargetPositionInMillimeters(
                                        stepsPerMillimeter));
 }
 
+float FlexyStepper::getTargetPositionInMillimeters()
+{
+	return getTargetPositionInSteps() / stepsPerMillimeter;
+}
+
 
 
 //
@@ -488,6 +512,20 @@ void FlexyStepper::setAccelerationInRevolutionsPerSecondPerSecond(
 {
     setAccelerationInStepsPerSecondPerSecond(
       accelerationInRevolutionsPerSecondPerSecond * stepsPerRevolution);
+}
+
+
+
+//
+// set the rate of deceleration, units in revolutions/second/second
+//  Enter:  decelerationInRevolutionsPerSecondPerSecond = rate of deceleration,  
+//          units in revolutions/second/second
+//
+void FlexyStepper::setDecelerationInRevolutionsPerSecondPerSecond(
+       float decelerationInRevolutionsPerSecondPerSecond)
+{
+    setDecelerationInStepsPerSecondPerSecond(
+      decelerationInRevolutionsPerSecondPerSecond * stepsPerRevolution);
 }
 
 
@@ -642,15 +680,40 @@ void FlexyStepper::setSpeedInStepsPerSecond(float speedInStepsPerSecond)
 //  Enter:  accelerationInStepsPerSecondPerSecond = rate of acceleration, units in 
 //          steps/second/second
 //
-void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
-                     float accelerationInStepsPerSecondPerSecond)
+void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(float accelerationInStepsPerSecondPerSecond)
 {
   acceleration_InStepsPerSecondPerSecond = accelerationInStepsPerSecondPerSecond;
   acceleration_InStepsPerUSPerUS = acceleration_InStepsPerSecondPerSecond / 1E12;
 
-  periodOfSlowestStep_InUS = 
-      1000000.0 / sqrt(2.0 * acceleration_InStepsPerSecondPerSecond);
-  minimumPeriodForAStoppedMotion = periodOfSlowestStep_InUS / 2.8;
+  acceleration_periodOfSlowestStep_InUS = 1000000.0 / sqrt(2.0 * acceleration_InStepsPerSecondPerSecond);
+  acceleration_minimumPeriodForAStoppedMotion = acceleration_periodOfSlowestStep_InUS / 2.8;
+
+
+/*  Serial.println("ACC");
+  Serial.println(acceleration_InStepsPerSecondPerSecond);
+  Serial.println(acceleration_InStepsPerUSPerUS * 1E12);*/
+}
+
+
+
+//
+// set the rate of deceleration, units in steps/second/second
+//  Enter:  decelerationInStepsPerSecondPerSecond = rate of deceleration, units in 
+//          steps/second/second
+//
+void FlexyStepper::setDecelerationInStepsPerSecondPerSecond(float decelerationInStepsPerSecondPerSecond)
+{
+  deceleration_InStepsPerSecondPerSecond = decelerationInStepsPerSecondPerSecond;
+  deceleration_InStepsPerUSPerUS = deceleration_InStepsPerSecondPerSecond / 1E12;
+
+  deceleration_periodOfSlowestStep_InUS = 1000000.0 / sqrt(2.0 * deceleration_InStepsPerSecondPerSecond);
+  deceleration_minimumPeriodForAStoppedMotion = deceleration_periodOfSlowestStep_InUS / 2.8;
+/*
+  Serial.println("DEC");
+  Serial.println(deceleration_InStepsPerSecondPerSecond);
+  Serial.println(deceleration_InStepsPerUSPerUS);
+  Serial.println(deceleration_periodOfSlowestStep_InUS);
+  Serial.println(deceleration_minimumPeriodForAStoppedMotion);*/
 }
 
 
@@ -835,7 +898,10 @@ void FlexyStepper::setTargetPositionInSteps(long absolutePositionToMoveToInSteps
   targetPosition_InSteps = absolutePositionToMoveToInSteps;
 }
 
-
+long FlexyStepper::getTargetPositionInSteps()
+{
+	return targetPosition_InSteps;
+}
 
 //
 // setup a "Stop" to begin the process of decelerating from the current velocity  
@@ -847,17 +913,15 @@ void FlexyStepper::setTargetPositionToStop()
 {
   long decelerationDistance_InSteps;
   
+  // if the motor is not running, do nothing!!!
+  if (directionOfMotion == 0) return;
   //
   // move the target position so that the motor will begin deceleration now
   //
-  decelerationDistance_InSteps = (long) round(
-    5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriod_InUS * 
-    currentStepPeriod_InUS));
+  decelerationDistance_InSteps = (long) round(5E11 / (deceleration_InStepsPerSecondPerSecond * currentStepPeriod_InUS * currentStepPeriod_InUS));
 
-  if (directionOfMotion > 0)
-    setTargetPositionInSteps(currentPosition_InSteps + decelerationDistance_InSteps);
-  else
-    setTargetPositionInSteps(currentPosition_InSteps - decelerationDistance_InSteps);
+  if (directionOfMotion > 0) setTargetPositionInSteps(currentPosition_InSteps + decelerationDistance_InSteps);
+  else setTargetPositionInSteps(currentPosition_InSteps - decelerationDistance_InSteps);
 }
 
 
@@ -873,6 +937,15 @@ bool FlexyStepper::processMovement(void)
   unsigned long periodSinceLastStep_InUS;
   long distanceToTarget_Signed;
 
+  if (emergency_stop)
+  {
+    currentStepPeriod_InUS = 0.0;
+    nextStepPeriod_InUS = 0.0;
+    directionOfMotion = 0;
+	targetPosition_InSteps = currentPosition_InSteps;
+	emergency_stop = false;
+  	return(true);
+  }
 
   //
   // check if currently stopped
@@ -888,7 +961,7 @@ bool FlexyStepper::processMovement(void)
     {
       directionOfMotion = 1;
       digitalWrite(directionPin, POSITIVE_DIRECTION);
-      nextStepPeriod_InUS = periodOfSlowestStep_InUS;
+      nextStepPeriod_InUS = acceleration_periodOfSlowestStep_InUS;
       lastStepTime_InUS = micros(); 
       return(false);
     }
@@ -900,7 +973,7 @@ bool FlexyStepper::processMovement(void)
     {
       directionOfMotion = -1;
       digitalWrite(directionPin, NEGATIVE_DIRECTION);
-      nextStepPeriod_InUS = periodOfSlowestStep_InUS;
+      nextStepPeriod_InUS = acceleration_periodOfSlowestStep_InUS;
       lastStepTime_InUS = micros(); 
       return(false);
     }
@@ -921,8 +994,7 @@ bool FlexyStepper::processMovement(void)
   //
   // if it is not time for the next step, return
   //
-  if (periodSinceLastStep_InUS < (unsigned long) nextStepPeriod_InUS)
-    return(false);
+  if (periodSinceLastStep_InUS < (unsigned long) nextStepPeriod_InUS) return(false);
   
 
   //
@@ -971,7 +1043,7 @@ bool FlexyStepper::processMovement(void)
     //
     // at final position, make sure the motor is not going too fast
     //
-    if (nextStepPeriod_InUS >= minimumPeriodForAStoppedMotion) 
+    if (nextStepPeriod_InUS >= deceleration_minimumPeriodForAStoppedMotion) 
     {
       currentStepPeriod_InUS = 0.0;
       nextStepPeriod_InUS = 0.0;
@@ -997,14 +1069,11 @@ bool FlexyStepper::processMovement(void)
 //
 float FlexyStepper::getCurrentVelocityInStepsPerSecond()
 {
-  if (currentStepPeriod_InUS == 0.0)
-    return(0);
+  if (currentStepPeriod_InUS == 0.0) return(0);
   else
   {
-    if (directionOfMotion > 0)
-      return(1000000.0 / currentStepPeriod_InUS);
-    else
-      return(-1000000.0 / currentStepPeriod_InUS);
+    if (directionOfMotion > 0) return(1000000.0 / currentStepPeriod_InUS);
+    else return(-1000000.0 / currentStepPeriod_InUS);
   }
 }
 
@@ -1016,11 +1085,8 @@ float FlexyStepper::getCurrentVelocityInStepsPerSecond()
 //
 bool FlexyStepper::motionComplete()
 {
-  if ((directionOfMotion == 0) && 
-      (currentPosition_InSteps == targetPosition_InSteps))
-    return(true);
-  else
-    return(false);
+  if ((directionOfMotion == 0) && (currentPosition_InSteps == targetPosition_InSteps)) return(true);
+  else return(false);
 }
 
 
@@ -1060,11 +1126,10 @@ void FlexyStepper::DeterminePeriodOfNextStep()
 
   //
   // determine the number of steps needed to go from the current speed down to a 
-  // velocity of 0, Steps = Velocity^2 / (2 * Acceleration)
+  // velocity of 0, Steps = Velocity^2 / (2 * Deceleration)
   //
   currentStepPeriodSquared = currentStepPeriod_InUS * currentStepPeriod_InUS;
-  decelerationDistance_InSteps = (long) round(
-    5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
+  decelerationDistance_InSteps = (long) round(5E11 / (deceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
   
   
   //
@@ -1077,11 +1142,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     // check if need to start slowing down as we reach the target, or if we 
     // need to slow down because we are going too fast
     //
-    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || 
-        (nextStepPeriod_InUS < desiredPeriod_InUSPerStep))
-      slowDownFlag = true;
-    else 
-      speedUpFlag = true;
+    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)) slowDownFlag = true;
+    else speedUpFlag = true;
    }
 
 
@@ -1094,7 +1156,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // need to slow down, then reverse direction
     //
-    if (currentStepPeriod_InUS < periodOfSlowestStep_InUS)
+    if (currentStepPeriod_InUS < deceleration_periodOfSlowestStep_InUS)
     {
       slowDownFlag = true;
     }
@@ -1102,6 +1164,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     {
       directionOfMotion = -1;
       digitalWrite(directionPin, NEGATIVE_DIRECTION);
+	  currentPosition_InSteps--;      
     }
   }
 
@@ -1116,11 +1179,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     // check if need to start slowing down as we reach the target, or if we 
     // need to slow down because we are going too fast
     //
-    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || 
-        (nextStepPeriod_InUS < desiredPeriod_InUSPerStep))
-      slowDownFlag = true;
-    else 
-      speedUpFlag = true;
+    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)) slowDownFlag = true;
+    else speedUpFlag = true;
    }
 
 
@@ -1133,7 +1193,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // need to slow down, then reverse direction
     //
-    if (currentStepPeriod_InUS < periodOfSlowestStep_InUS)
+    if (currentStepPeriod_InUS < deceleration_periodOfSlowestStep_InUS)
     {
       slowDownFlag = true;
     }
@@ -1141,9 +1201,9 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     {
       directionOfMotion = 1;
       digitalWrite(directionPin, POSITIVE_DIRECTION);
+	  currentPosition_InSteps--;      
     }
   }
-
 
   //
   // check if accelerating
@@ -1153,11 +1213,9 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 - a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS - acceleration_InStepsPerUSPerUS * 
-      currentStepPeriodSquared * currentStepPeriod_InUS;
-
-    if (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)
-      nextStepPeriod_InUS = desiredPeriod_InUSPerStep;
+    nextStepPeriod_InUS = currentStepPeriod_InUS - acceleration_InStepsPerUSPerUS * currentStepPeriodSquared * currentStepPeriod_InUS;
+    if (nextStepPeriod_InUS < 0) nextStepPeriod_InUS = acceleration_periodOfSlowestStep_InUS;
+    else if (nextStepPeriod_InUS < desiredPeriod_InUSPerStep) nextStepPeriod_InUS = desiredPeriod_InUSPerStep;   
   }
 
   
@@ -1169,11 +1227,8 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 + a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS + acceleration_InStepsPerUSPerUS * 
-      currentStepPeriodSquared * currentStepPeriod_InUS;
-
-    if (nextStepPeriod_InUS > periodOfSlowestStep_InUS)
-      nextStepPeriod_InUS = periodOfSlowestStep_InUS;
+    nextStepPeriod_InUS = currentStepPeriod_InUS + deceleration_InStepsPerUSPerUS * currentStepPeriodSquared * currentStepPeriod_InUS;
+    if (nextStepPeriod_InUS > deceleration_periodOfSlowestStep_InUS) nextStepPeriod_InUS = deceleration_periodOfSlowestStep_InUS;
   }
 }
 
