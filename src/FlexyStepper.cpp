@@ -1,4 +1,4 @@
-
+// ESTOY TRABAJANDO  CON ESTA LIBRERIA
 //      ******************************************************************
 //      *                                                                *
 //      *                    FlexyStepper Motor Driver                   *
@@ -10,19 +10,19 @@
 
 
 // MIT License
-// 
+//
 // Copyright (c) 2014 Stanley Reifel & Co.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is furnished
 // to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,8 +33,8 @@
 
 
 //
-// This library is used to control one or more stepper motors.  It requires a 
-// stepper driver board that has a Step and Direction interface.  The motors are 
+// This library is used to control one or more stepper motors.  It requires a
+// stepper driver board that has a Step and Direction interface.  The motors are
 // accelerated and decelerated as they travel to the final position.  This driver
 // supports changing the target position, speed or rate of acceleration while a
 // motion is in progress.
@@ -43,23 +43,23 @@
 // as fast of a step rate as a driver that requires each motion to complete.
 // To step faster, see the companion the Arduino stepper library:  SpeedyStepper
 //
-// This library can generate a maximum of about 7,000 steps per second using an 
-// Arduino Uno.  Assuming a system driving only one motor at a time, in full step 
-// mode, with a 200 steps per rotation motor, the maximum speed is about 35 RPS 
-// or 2100 RPM (most stepper motor can not go this fast).  Driving one motor in 
-// half step mode, a maximum speed of 17 RPS or 1050 RPM can be reached.  In 
+// This library can generate a maximum of about 7,000 steps per second using an
+// Arduino Uno.  Assuming a system driving only one motor at a time, in full step
+// mode, with a 200 steps per rotation motor, the maximum speed is about 35 RPS
+// or 2100 RPM (most stepper motor can not go this fast).  Driving one motor in
+// half step mode, a maximum speed of 17 RPS or 1050 RPM can be reached.  In
 // quarter step mode about 9 RPS or 525 RPM.  Running multiple motors at the same
 // time will reduce the maximum speed.  For example running two motors will reduce
 // the step rate by half or more.
 //
-// This stepper motor driver is based on Aryeh Elderman's paper "Real Time Stepper  
-// Motor Linear Ramping Just By Addition and Multiplication".  See: 
+// This stepper motor driver is based on Aryeh Elderman's paper "Real Time Stepper
+// Motor Linear Ramping Just By Addition and Multiplication".  See:
 //                          www.hwml.com/LeibRamp.pdf
 //
-// It has advantages and disadvantages over David Austin's method.  The advantage 
-// is that it is faster, meaning you can generate more steps/second.  The 
-// disadvantage is that the speed ramping while accelerating and decelerating is 
-// less linear.  This is likely to only be a problem when coordinating multiple 
+// It has advantages and disadvantages over David Austin's method.  The advantage
+// is that it is faster, meaning you can generate more steps/second.  The
+// disadvantage is that the speed ramping while accelerating and decelerating is
+// less linear.  This is likely to only be a problem when coordinating multiple
 // axis that all need to start and finish motions precisely at the same time.
 //
 //
@@ -67,7 +67,7 @@
 //    Near the top of the program, add:
 //        include "FlexyStepper.h"
 //
-//    For each stepper, declare a global object outside of all functions as 
+//    For each stepper, declare a global object outside of all functions as
 //    follows:
 //        FlexyStepper stepper1;
 //        FlexyStepper stepper2;
@@ -76,12 +76,12 @@
 //        stepper1.connectToPins(10, 11);
 //        stepper2.connectToPins(12, 14);
 //
-//    Notes: 
+//    Notes:
 //        * Most stepper motors have 200 steps per revolution.
-//        * With driver board set for 2x microstepping, then 400 steps per 
+//        * With driver board set for 2x microstepping, then 400 steps per
 //          revolution
 //        * 8x microstepping results in 1600 steps per revolution
-//        * NEMA 17 Steppers with lead screws typically have 25 steps per 
+//        * NEMA 17 Steppers with lead screws typically have 25 steps per
 //          millimeter when the driver is set for 1x microstepping
 //
 //
@@ -105,13 +105,13 @@
 //
 //    Move one motor in units of revolutions:
 //        //
-//        // set the number of steps per revolutions, 200 with no microstepping, 
+//        // set the number of steps per revolutions, 200 with no microstepping,
 //        // 800 with 4x microstepping
 //        //
 //        stepper1.setStepsPerRevolution(200);
 //
 //        //
-//        // set the speed in rotations/second and acceleration in 
+//        // set the speed in rotations/second and acceleration in
 //        // rotations/second/second
 //        //
 //        stepper1.setSpeedInRevolutionsPerSecond(1);
@@ -135,7 +135,7 @@
 //        stepper1.setStepsPerMillimeter(25);
 //
 //        //
-//        // set the speed in millimeters/second and acceleration in 
+//        // set the speed in millimeters/second and acceleration in
 //        // millimeters/second/second
 //        //
 //        stepper1.setSpeedInMillimetersPerSecond(20);
@@ -154,14 +154,14 @@
 //
 //    Move two motors in units of revolutions:
 //        //
-//        // set the number of steps per revolutions, 200 with no microstepping, 
+//        // set the number of steps per revolutions, 200 with no microstepping,
 //        // 800 with 4x microstepping
 //        //
 //        stepper1.setStepsPerRevolution(200);
 //        stepper2.setStepsPerRevolution(200);
 //
 //        //
-//        // set the speed in rotations/second and acceleration in 
+//        // set the speed in rotations/second and acceleration in
 //        // rotations/second/second
 //        //
 //        stepper1.setSpeedInRevolutionsPerSecond(1);
@@ -170,13 +170,13 @@
 //        stepper2.setAccelerationInRevolutionsPerSecondPerSecond(1);
 //
 //        //
-//        // setup motor 1 to move backward 1.5 revolutions, this step does not 
+//        // setup motor 1 to move backward 1.5 revolutions, this step does not
 //        // actually move the motor
 //        //
 //        stepper1.setupRelativeMoveInRevolutions(-1.5);
 //
 //        //
-//        // setup motor 2 to move forward 3.0 revolutions, this step does not 
+//        // setup motor 2 to move forward 3.0 revolutions, this step does not
 //        // actually move the motor
 //        //
 //        stepper2.setupRelativeMoveInRevolutions(3.0);
@@ -202,7 +202,7 @@
 
 
 // ---------------------------------------------------------------------------------
-//                                  Setup functions 
+//                                  Setup functions
 // ---------------------------------------------------------------------------------
 
 
@@ -242,7 +242,7 @@ void FlexyStepper::connectToPins(byte stepPinNumber, byte directionPinNumber)
   //
   stepPin = stepPinNumber;
   directionPin = directionPinNumber;
-  
+
   //
   // configure the IO bits
   //
@@ -256,7 +256,7 @@ void FlexyStepper::connectToPins(byte stepPinNumber, byte directionPinNumber)
 
 
 // ---------------------------------------------------------------------------------
-//                     Public functions with units in millimeters 
+//                     Public functions with units in millimeters
 // ---------------------------------------------------------------------------------
 
 //
@@ -282,22 +282,22 @@ float FlexyStepper::getCurrentPositionInMillimeters()
 
 
 //
-// set the current position of the motor in millimeters, this does not move the 
+// set the current position of the motor in millimeters, this does not move the
 // motor
 //
 void FlexyStepper::setCurrentPositionInMillimeters(
                    float currentPositionInMillimeters)
 {
-  setCurrentPositionInSteps((long) round(currentPositionInMillimeters * 
+  setCurrentPositionInSteps((long) round(currentPositionInMillimeters *
                                          stepsPerMillimeter));
 }
 
 
 
 //
-// set the maximum speed, units in millimeters/second, this is the maximum speed  
+// set the maximum speed, units in millimeters/second, this is the maximum speed
 // reached while accelerating
-//  Enter:  speedInMillimetersPerSecond = speed to accelerate up to, units in 
+//  Enter:  speedInMillimetersPerSecond = speed to accelerate up to, units in
 //            millimeters/second
 //
 void FlexyStepper::setSpeedInMillimetersPerSecond(float speedInMillimetersPerSecond)
@@ -309,7 +309,7 @@ void FlexyStepper::setSpeedInMillimetersPerSecond(float speedInMillimetersPerSec
 
 //
 // set the rate of acceleration, units in millimeters/second/second
-//  Enter:  accelerationInMillimetersPerSecondPerSecond = rate of acceleration,  
+//  Enter:  accelerationInMillimetersPerSecondPerSecond = rate of acceleration,
 //          units in millimeters/second/second
 //
 void FlexyStepper::setAccelerationInMillimetersPerSecondPerSecond(
@@ -322,40 +322,40 @@ void FlexyStepper::setAccelerationInMillimetersPerSecondPerSecond(
 
 
 //
-// home the motor by moving until the homing sensor is activated, then set the  
+// home the motor by moving until the homing sensor is activated, then set the
 // position to zero, with units in millimeters
-//  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move 
-//            in a negative directions 
-//          speedInMillimetersPerSecond = speed to accelerate up to while moving 
+//  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move
+//            in a negative directions
+//          speedInMillimetersPerSecond = speed to accelerate up to while moving
 //            toward home, units in millimeters/second
-//          maxDistanceToMoveInMillimeters = unsigned maximum distance to move 
+//          maxDistanceToMoveInMillimeters = unsigned maximum distance to move
 //            toward home before giving up
-//          homeSwitchPin = pin number of the home switch, switch should be 
+//          homeSwitchPin = pin number of the home switch, switch should be
 //            configured to go low when at home
 //  Exit:   true returned if successful, else false
 //
-bool FlexyStepper::moveToHomeInMillimeters(long directionTowardHome,  
-  float speedInMillimetersPerSecond, long maxDistanceToMoveInMillimeters, 
+bool FlexyStepper::moveToHomeInMillimeters(long directionTowardHome,
+  float speedInMillimetersPerSecond, long maxDistanceToMoveInMillimeters,
   int homeLimitSwitchPin)
 {
-  return(moveToHomeInSteps(directionTowardHome, 
-                          speedInMillimetersPerSecond * stepsPerMillimeter, 
-                          maxDistanceToMoveInMillimeters * stepsPerMillimeter, 
+  return(moveToHomeInSteps(directionTowardHome,
+                          speedInMillimetersPerSecond * stepsPerMillimeter,
+                          maxDistanceToMoveInMillimeters * stepsPerMillimeter,
                           homeLimitSwitchPin));
 }
 
 
 
 //
-// move relative to the current position, units are in millimeters, this function  
+// move relative to the current position, units are in millimeters, this function
 // does not return until the move is complete
-//  Enter:  distanceToMoveInMillimeters = signed distance to move relative to the  
+//  Enter:  distanceToMoveInMillimeters = signed distance to move relative to the
 //          current position in millimeters
 //
 void FlexyStepper::moveRelativeInMillimeters(float distanceToMoveInMillimeters)
 {
   setTargetPositionRelativeInMillimeters(distanceToMoveInMillimeters);
-  
+
   while(!processMovement())
     ;
 }
@@ -363,31 +363,31 @@ void FlexyStepper::moveRelativeInMillimeters(float distanceToMoveInMillimeters)
 
 
 //
-// setup a move relative to the current position, units are in millimeters, no   
+// setup a move relative to the current position, units are in millimeters, no
 // motion occurs until processMove() is called
-//  Enter:  distanceToMoveInMillimeters = signed distance to move relative to the  
+//  Enter:  distanceToMoveInMillimeters = signed distance to move relative to the
 //          current position in millimeters
 //
 void FlexyStepper::setTargetPositionRelativeInMillimeters(
                      float distanceToMoveInMillimeters)
 {
-  setTargetPositionRelativeInSteps((long) round(distanceToMoveInMillimeters * 
+  setTargetPositionRelativeInSteps((long) round(distanceToMoveInMillimeters *
                                                  stepsPerMillimeter));
 }
 
 
 
 //
-// move to the given absolute position, units are in millimeters, this function 
+// move to the given absolute position, units are in millimeters, this function
 // does not return until the move is complete
-//  Enter:  absolutePositionToMoveToInMillimeters = signed absolute position to  
+//  Enter:  absolutePositionToMoveToInMillimeters = signed absolute position to
 //          move to in units of millimeters
 //
 void FlexyStepper::moveToPositionInMillimeters(
                     float absolutePositionToMoveToInMillimeters)
 {
   setTargetPositionInMillimeters(absolutePositionToMoveToInMillimeters);
-  
+
   while(!processMovement())
     ;
 }
@@ -395,27 +395,27 @@ void FlexyStepper::moveToPositionInMillimeters(
 
 
 //
-// setup a move, units are in millimeters, no motion occurs until processMove() 
+// setup a move, units are in millimeters, no motion occurs until processMove()
 // is called
-//  Enter:  absolutePositionToMoveToInMillimeters = signed absolute position to  
+//  Enter:  absolutePositionToMoveToInMillimeters = signed absolute position to
 //          move to in units of millimeters
 //
 void FlexyStepper::setTargetPositionInMillimeters(
                     float absolutePositionToMoveToInMillimeters)
 {
- setTargetPositionInSteps((long) round(absolutePositionToMoveToInMillimeters * 
+ setTargetPositionInSteps((long) round(absolutePositionToMoveToInMillimeters *
                                        stepsPerMillimeter));
 }
 
 
 
 //
-// Get the current velocity of the motor in millimeters/second.  This functions is 
-// updated while it accelerates up and down in speed.  This is not the desired  
-// speed, but the speed the motor should be moving at the time the function is   
-// called.  This is a signed value and is negative when the motor is moving 
-// backwards.  Note: This speed will be incorrect if the desired velocity is set 
-// faster than this library can generate steps, or if the load on the motor is too 
+// Get the current velocity of the motor in millimeters/second.  This functions is
+// updated while it accelerates up and down in speed.  This is not the desired
+// speed, but the speed the motor should be moving at the time the function is
+// called.  This is a signed value and is negative when the motor is moving
+// backwards.  Note: This speed will be incorrect if the desired velocity is set
+// faster than this library can generate steps, or if the load on the motor is too
 // great for the amount of torque that it can generate.
 //  Exit:  velocity speed in steps per second returned, signed
 //
@@ -427,7 +427,7 @@ float FlexyStepper::getCurrentVelocityInMillimetersPerSecond()
 
 
 // ---------------------------------------------------------------------------------
-//                     Public functions with units in revolutions 
+//                     Public functions with units in revolutions
 // ---------------------------------------------------------------------------------
 
 //
@@ -453,22 +453,22 @@ float FlexyStepper::getCurrentPositionInRevolutions()
 
 
 //
-// set the current position of the motor in revolutions, this does not move the 
+// set the current position of the motor in revolutions, this does not move the
 // motor
 //
 void FlexyStepper::setCurrentPositionInRevolutions(
                      float currentPositionInRevolutions)
 {
-  setCurrentPositionInSteps((long) round(currentPositionInRevolutions * 
+  setCurrentPositionInSteps((long) round(currentPositionInRevolutions *
                                          stepsPerRevolution));
 }
 
 
 
 //
-// set the maximum speed, units in revolutions/second, this is the maximum speed  
+// set the maximum speed, units in revolutions/second, this is the maximum speed
 // reached while accelerating
-//  Enter:  speedInRevolutionsPerSecond = speed to accelerate up to, units in 
+//  Enter:  speedInRevolutionsPerSecond = speed to accelerate up to, units in
 //            revolutions/second
 //
 void FlexyStepper::setSpeedInRevolutionsPerSecond(float speedInRevolutionsPerSecond)
@@ -480,7 +480,7 @@ void FlexyStepper::setSpeedInRevolutionsPerSecond(float speedInRevolutionsPerSec
 
 //
 // set the rate of acceleration, units in revolutions/second/second
-//  Enter:  accelerationInRevolutionsPerSecondPerSecond = rate of acceleration,  
+//  Enter:  accelerationInRevolutionsPerSecondPerSecond = rate of acceleration,
 //          units in revolutions/second/second
 //
 void FlexyStepper::setAccelerationInRevolutionsPerSecondPerSecond(
@@ -493,40 +493,40 @@ void FlexyStepper::setAccelerationInRevolutionsPerSecondPerSecond(
 
 
 //
-// home the motor by moving until the homing sensor is activated, then set the 
+// home the motor by moving until the homing sensor is activated, then set the
 //  position to zero, with units in revolutions
-//  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move in 
-//            a negative directions 
-//          speedInRevolutionsPerSecond = speed to accelerate up to while moving 
+//  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move in
+//            a negative directions
+//          speedInRevolutionsPerSecond = speed to accelerate up to while moving
 //            toward home, units in revolutions/second
-//          maxDistanceToMoveInRevolutions = unsigned maximum distance to move 
+//          maxDistanceToMoveInRevolutions = unsigned maximum distance to move
 //            toward home before giving up
-//          homeSwitchPin = pin number of the home switch, switch should be 
+//          homeSwitchPin = pin number of the home switch, switch should be
 //            configured to go low when at home
 //  Exit:   true returned if successful, else false
 //
-bool FlexyStepper::moveToHomeInRevolutions(long directionTowardHome,  
-  float speedInRevolutionsPerSecond, long maxDistanceToMoveInRevolutions, 
+bool FlexyStepper::moveToHomeInRevolutions(long directionTowardHome,
+  float speedInRevolutionsPerSecond, long maxDistanceToMoveInRevolutions,
   int homeLimitSwitchPin)
 {
-  return(moveToHomeInSteps(directionTowardHome, 
-                          speedInRevolutionsPerSecond * stepsPerRevolution, 
-                          maxDistanceToMoveInRevolutions * stepsPerRevolution, 
+  return(moveToHomeInSteps(directionTowardHome,
+                          speedInRevolutionsPerSecond * stepsPerRevolution,
+                          maxDistanceToMoveInRevolutions * stepsPerRevolution,
                           homeLimitSwitchPin));
 }
 
 
 
 //
-// move relative to the current position, units are in revolutions, this function  
+// move relative to the current position, units are in revolutions, this function
 // does not return until the move is complete
-//  Enter:  distanceToMoveInRevolutions = signed distance to move relative to the  
+//  Enter:  distanceToMoveInRevolutions = signed distance to move relative to the
 //          current position in revolutions
 //
 void FlexyStepper::moveRelativeInRevolutions(float distanceToMoveInRevolutions)
 {
   setTargetPositionRelativeInRevolutions(distanceToMoveInRevolutions);
-  
+
   while(!processMovement())
     ;
 }
@@ -534,31 +534,31 @@ void FlexyStepper::moveRelativeInRevolutions(float distanceToMoveInRevolutions)
 
 
 //
-// setup a move relative to the current position, units are in revolutions, no   
+// setup a move relative to the current position, units are in revolutions, no
 // motion occurs until processMove() is called
-//  Enter:  distanceToMoveInRevolutions = signed distance to move relative to the  
+//  Enter:  distanceToMoveInRevolutions = signed distance to move relative to the
 //            currentposition in revolutions
 //
 void FlexyStepper::setTargetPositionRelativeInRevolutions(
                      float distanceToMoveInRevolutions)
 {
-  setTargetPositionRelativeInSteps((long) round(distanceToMoveInRevolutions * 
+  setTargetPositionRelativeInSteps((long) round(distanceToMoveInRevolutions *
                                                 stepsPerRevolution));
 }
 
 
 
 //
-// move to the given absolute position, units are in revolutions, this function 
+// move to the given absolute position, units are in revolutions, this function
 // does not return until the move is complete
-//  Enter:  absolutePositionToMoveToInRevolutions = signed absolute position to 
+//  Enter:  absolutePositionToMoveToInRevolutions = signed absolute position to
 //            move to in units of revolutions
 //
 void FlexyStepper::moveToPositionInRevolutions(
                     float absolutePositionToMoveToInRevolutions)
 {
   setTargetPositionInRevolutions(absolutePositionToMoveToInRevolutions);
-  
+
   while(!processMovement())
     ;
 }
@@ -566,27 +566,27 @@ void FlexyStepper::moveToPositionInRevolutions(
 
 
 //
-// setup a move, units are in revolutions, no motion occurs until processMove() 
+// setup a move, units are in revolutions, no motion occurs until processMove()
 // is called
-//  Enter:  absolutePositionToMoveToInRevolutions = signed absolute position to  
+//  Enter:  absolutePositionToMoveToInRevolutions = signed absolute position to
 //          move to in units of revolutions
 //
 void FlexyStepper::setTargetPositionInRevolutions(
        float absolutePositionToMoveToInRevolutions)
 {
- setTargetPositionInSteps((long) round(absolutePositionToMoveToInRevolutions * 
+ setTargetPositionInSteps((long) round(absolutePositionToMoveToInRevolutions *
                                         stepsPerRevolution));
 }
 
 
 
 //
-// Get the current velocity of the motor in revolutions/second.  This functions is 
-// updated while it accelerates up and down in speed.  This is not the desired  
-// speed, but the speed the motor should be moving at the time the function is   
-// called.  This is a signed value and is negative when the motor is moving 
-// backwards.  Note: This speed will be incorrect if the desired velocity is set 
-// faster than this library can generate steps, or if the load on the motor is too 
+// Get the current velocity of the motor in revolutions/second.  This functions is
+// updated while it accelerates up and down in speed.  This is not the desired
+// speed, but the speed the motor should be moving at the time the function is
+// called.  This is a signed value and is negative when the motor is moving
+// backwards.  Note: This speed will be incorrect if the desired velocity is set
+// faster than this library can generate steps, or if the load on the motor is too
 // great for the amount of torque that it can generate.
 //  Exit:  velocity speed in steps per second returned, signed
 //
@@ -597,7 +597,7 @@ float FlexyStepper::getCurrentVelocityInRevolutionsPerSecond()
 
 
 // ---------------------------------------------------------------------------------
-//                        Public functions with units in steps 
+//                        Public functions with units in steps
 // ---------------------------------------------------------------------------------
 
 //
@@ -625,7 +625,7 @@ long FlexyStepper::getCurrentPositionInSteps()
 
 
 //
-// set the maximum speed, units in steps/second, this is the maximum speed reached  
+// set the maximum speed, units in steps/second, this is the maximum speed reached
 // while accelerating
 //  Enter:  speedInStepsPerSecond = speed to accelerate up to, units in steps/second
 //
@@ -639,7 +639,7 @@ void FlexyStepper::setSpeedInStepsPerSecond(float speedInStepsPerSecond)
 
 //
 // set the rate of acceleration, units in steps/second/second
-//  Enter:  accelerationInStepsPerSecondPerSecond = rate of acceleration, units in 
+//  Enter:  accelerationInStepsPerSecondPerSecond = rate of acceleration, units in
 //          steps/second/second
 //
 void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
@@ -648,7 +648,7 @@ void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
   acceleration_InStepsPerSecondPerSecond = accelerationInStepsPerSecondPerSecond;
   acceleration_InStepsPerUSPerUS = acceleration_InStepsPerSecondPerSecond / 1E12;
 
-  periodOfSlowestStep_InUS = 
+  periodOfSlowestStep_InUS =
       1000000.0 / sqrt(2.0 * acceleration_InStepsPerSecondPerSecond);
   minimumPeriodForAStoppedMotion = periodOfSlowestStep_InUS / 2.8;
 }
@@ -656,38 +656,38 @@ void FlexyStepper::setAccelerationInStepsPerSecondPerSecond(
 
 
 //
-// home the motor by moving until the homing sensor is activated, then set the 
+// home the motor by moving until the homing sensor is activated, then set the
 // position to zero with units in steps
-//  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move in 
-//            a negative directions 
-//          speedInStepsPerSecond = speed to accelerate up to while moving toward 
+//  Enter:  directionTowardHome = 1 to move in a positive direction, -1 to move in
+//            a negative directions
+//          speedInStepsPerSecond = speed to accelerate up to while moving toward
 //            home, units in steps/second
-//          maxDistanceToMoveInSteps = unsigned maximum distance to move toward 
+//          maxDistanceToMoveInSteps = unsigned maximum distance to move toward
 //            home before giving up
-//          homeSwitchPin = pin number of the home switch, switch should be 
+//          homeSwitchPin = pin number of the home switch, switch should be
 //            configured to go low when at home
 //  Exit:   true returned if successful, else false
 //
-bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,  
-  float speedInStepsPerSecond, long maxDistanceToMoveInSteps, 
+bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
+  float speedInStepsPerSecond, long maxDistanceToMoveInSteps,
   int homeLimitSwitchPin)
 {
   float originalDesiredSpeed_InStepsPerSecond;
   bool limitSwitchFlag;
-  
-  
+
+
   //
   // setup the home switch input pin
   //
   pinMode(homeLimitSwitchPin, INPUT_PULLUP);
-  
-  
+
+
   //
   // remember the current speed setting
   //
-  originalDesiredSpeed_InStepsPerSecond = desiredSpeed_InStepsPerSecond; 
- 
- 
+  originalDesiredSpeed_InStepsPerSecond = desiredSpeed_InStepsPerSecond;
+
+
   //
   // if the home switch is not already set, move toward it
   //
@@ -708,7 +708,7 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
         break;
       }
     }
-    
+
     //
     // check if switch never detected
     //
@@ -716,12 +716,12 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
       return(false);
   }
   delay(25);
-  
+
 
   //
   // the switch has been detected, now move away from the switch
   //
-  setTargetPositionRelativeInSteps(maxDistanceToMoveInSteps * 
+  setTargetPositionRelativeInSteps(maxDistanceToMoveInSteps *
                                    directionTowardHome * -1);
   limitSwitchFlag = false;
   while(!processMovement())
@@ -734,7 +734,7 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
     }
   }
   delay(25);
-  
+
   //
   // check if switch never detected
   //
@@ -758,7 +758,7 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
     }
   }
   delay(25);
-  
+
   //
   // check if switch never detected
   //
@@ -769,7 +769,7 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
   //
   // successfully homed, set the current position to 0
   //
-  setCurrentPositionInSteps(0L);    
+  setCurrentPositionInSteps(0L);
 
   //
   // restore original velocity
@@ -781,15 +781,15 @@ bool FlexyStepper::moveToHomeInSteps(long directionTowardHome,
 
 
 //
-// move relative to the current position, units are in steps, this function does 
+// move relative to the current position, units are in steps, this function does
 // not return until the move is complete
-//  Enter:  distanceToMoveInSteps = signed distance to move relative to the current  
+//  Enter:  distanceToMoveInSteps = signed distance to move relative to the current
 //          position in steps
 //
 void FlexyStepper::moveRelativeInSteps(long distanceToMoveInSteps)
 {
   setTargetPositionRelativeInSteps(distanceToMoveInSteps);
-  
+
   while(!processMovement())
     ;
 }
@@ -797,9 +797,9 @@ void FlexyStepper::moveRelativeInSteps(long distanceToMoveInSteps)
 
 
 //
-// setup a move relative to the current position, units are in steps, no motion  
+// setup a move relative to the current position, units are in steps, no motion
 // occurs until processMove() is called
-//  Enter:  distanceToMoveInSteps = signed distance to move relative to the current  
+//  Enter:  distanceToMoveInSteps = signed distance to move relative to the current
 //            positionin steps
 //
 void FlexyStepper::setTargetPositionRelativeInSteps(long distanceToMoveInSteps)
@@ -810,15 +810,15 @@ void FlexyStepper::setTargetPositionRelativeInSteps(long distanceToMoveInSteps)
 
 
 //
-// move to the given absolute position, units are in steps, this function does not 
+// move to the given absolute position, units are in steps, this function does not
 // return until the move is complete
-//  Enter:  absolutePositionToMoveToInSteps = signed absolute position to move to  
+//  Enter:  absolutePositionToMoveToInSteps = signed absolute position to move to
 //            in unitsof steps
 //
 void FlexyStepper::moveToPositionInSteps(long absolutePositionToMoveToInSteps)
 {
   setTargetPositionInSteps(absolutePositionToMoveToInSteps);
-  
+
   while(!processMovement())
     ;
 }
@@ -827,7 +827,7 @@ void FlexyStepper::moveToPositionInSteps(long absolutePositionToMoveToInSteps)
 
 //
 // setup a move, units are in steps, no motion occurs until processMove() is called
-//  Enter:  absolutePositionToMoveToInSteps = signed absolute position to move to  
+//  Enter:  absolutePositionToMoveToInSteps = signed absolute position to move to
 //            in units of steps
 //
 void FlexyStepper::setTargetPositionInSteps(long absolutePositionToMoveToInSteps)
@@ -838,20 +838,20 @@ void FlexyStepper::setTargetPositionInSteps(long absolutePositionToMoveToInSteps
 
 
 //
-// setup a "Stop" to begin the process of decelerating from the current velocity  
+// setup a "Stop" to begin the process of decelerating from the current velocity
 // to zero, decelerating requires calls to processMove() until the move is complete
-// Note: This function can be used to stop a motion initiated in units of steps 
+// Note: This function can be used to stop a motion initiated in units of steps
 // or revolutions
 //
 void FlexyStepper::setTargetPositionToStop()
 {
   long decelerationDistance_InSteps;
-  
+
   //
   // move the target position so that the motor will begin deceleration now
   //
   decelerationDistance_InSteps = (long) round(
-    5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriod_InUS * 
+    5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriod_InUS *
     currentStepPeriod_InUS));
 
   if (directionOfMotion > 0)
@@ -864,11 +864,11 @@ void FlexyStepper::setTargetPositionToStop()
 
 //
 // if it is time, move one step
-//  Exit:  true returned if movement complete, false returned not a final target 
+//  Exit:  true returned if movement complete, false returned not a final target
 //           position yet
 //
 bool FlexyStepper::processMovement(void)
-{ 
+{
   unsigned long currentTime_InUS;
   unsigned long periodSinceLastStep_InUS;
   long distanceToTarget_Signed;
@@ -889,10 +889,10 @@ bool FlexyStepper::processMovement(void)
       directionOfMotion = 1;
       digitalWrite(directionPin, POSITIVE_DIRECTION);
       nextStepPeriod_InUS = periodOfSlowestStep_InUS;
-      lastStepTime_InUS = micros(); 
+      lastStepTime_InUS = micros();
       return(false);
     }
-    
+
     //
     // check if target position in a negative direction
     //
@@ -901,17 +901,17 @@ bool FlexyStepper::processMovement(void)
       directionOfMotion = -1;
       digitalWrite(directionPin, NEGATIVE_DIRECTION);
       nextStepPeriod_InUS = periodOfSlowestStep_InUS;
-      lastStepTime_InUS = micros(); 
+      lastStepTime_InUS = micros();
       return(false);
     }
-    
+
     else
       return(true);
   }
-   
-    
+
+
   //
-  // determine how much time has elapsed since the last step (Note 1: this method   
+  // determine how much time has elapsed since the last step (Note 1: this method
   // works even if the time has wrapped. Note 2: all variables must be unsigned)
   //
   currentTime_InUS = micros();
@@ -923,20 +923,20 @@ bool FlexyStepper::processMovement(void)
   //
   if (periodSinceLastStep_InUS < (unsigned long) nextStepPeriod_InUS)
     return(false);
-  
+
 
   //
   // execute the step on the rising edge
   //
   digitalWrite(stepPin, HIGH);
-  
+
   //
-  // this delay almost nothing because there's so much code between rising & 
+  // this delay almost nothing because there's so much code between rising &
   // falling edges
   //
-  delayMicroseconds(2);       
-  
-  
+  delayMicroseconds(2);
+
+
   //
   // update the current position and speed
   //
@@ -948,13 +948,13 @@ bool FlexyStepper::processMovement(void)
   // remember the time that this step occured
   //
   lastStepTime_InUS = currentTime_InUS;
- 
- 
+
+
   //
   // figure out how long before the next step
   //
   DeterminePeriodOfNextStep();
- 
+
 
   //
   // return the step line low
@@ -963,7 +963,7 @@ bool FlexyStepper::processMovement(void)
 
 
   //
-  // check if the move has reached its final target position, return true if all 
+  // check if the move has reached its final target position, return true if all
   // done
   //
   if (currentPosition_InSteps == targetPosition_InSteps)
@@ -971,7 +971,7 @@ bool FlexyStepper::processMovement(void)
     //
     // at final position, make sure the motor is not going too fast
     //
-    if (nextStepPeriod_InUS >= minimumPeriodForAStoppedMotion) 
+    if (nextStepPeriod_InUS >= minimumPeriodForAStoppedMotion)
     {
       currentStepPeriod_InUS = 0.0;
       nextStepPeriod_InUS = 0.0;
@@ -979,19 +979,19 @@ bool FlexyStepper::processMovement(void)
       return(true);
     }
   }
-    
+
   return(false);
 }
 
 
 
 //
-// Get the current velocity of the motor in steps/second.  This functions is 
-// updated while it accelerates up and down in speed.  This is not the desired  
-// speed, but the speed the motor should be moving at the time the function is  
-// called.  This is a signed value and is negative when the motor is moving 
-// backwards.  Note: This speed will be incorrect if the desired velocity is set 
-// faster than this library can generate steps, or if the load on the motor is too 
+// Get the current velocity of the motor in steps/second.  This functions is
+// updated while it accelerates up and down in speed.  This is not the desired
+// speed, but the speed the motor should be moving at the time the function is
+// called.  This is a signed value and is negative when the motor is moving
+// backwards.  Note: This speed will be incorrect if the desired velocity is set
+// faster than this library can generate steps, or if the load on the motor is too
 // great for the amount of torque that it can generate.
 //  Exit:  velocity speed in steps per second returned, signed
 //
@@ -1016,7 +1016,7 @@ float FlexyStepper::getCurrentVelocityInStepsPerSecond()
 //
 bool FlexyStepper::motionComplete()
 {
-  if ((directionOfMotion == 0) && 
+  if ((directionOfMotion == 0) &&
       (currentPosition_InSteps == targetPosition_InSteps))
     return(true);
   else
@@ -1026,7 +1026,7 @@ bool FlexyStepper::motionComplete()
 
 
 //
-// determine the period for the next step, either speed up a little, slow down a  
+// determine the period for the next step, either speed up a little, slow down a
 // little or go the same speed
 //
 void FlexyStepper::DeterminePeriodOfNextStep()
@@ -1041,7 +1041,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
   bool targetInPositiveDirectionFlag = false;
   bool targetInNegativeDirectionFlag = false;
 
-  
+
   //
   // determine the distance to the target position
   //
@@ -1059,14 +1059,14 @@ void FlexyStepper::DeterminePeriodOfNextStep()
 
 
   //
-  // determine the number of steps needed to go from the current speed down to a 
+  // determine the number of steps needed to go from the current speed down to a
   // velocity of 0, Steps = Velocity^2 / (2 * Acceleration)
   //
   currentStepPeriodSquared = currentStepPeriod_InUS * currentStepPeriod_InUS;
   decelerationDistance_InSteps = (long) round(
     5E11 / (acceleration_InStepsPerSecondPerSecond * currentStepPeriodSquared));
-  
-  
+
+
   //
   // check if: Moving in a positive direction & Moving toward the target
   //    (directionOfMotion == 1) && (distanceToTarget_Signed > 0)
@@ -1074,13 +1074,13 @@ void FlexyStepper::DeterminePeriodOfNextStep()
   if ((directionOfMotion == 1) && (targetInPositiveDirectionFlag))
   {
     //
-    // check if need to start slowing down as we reach the target, or if we 
+    // check if need to start slowing down as we reach the target, or if we
     // need to slow down because we are going too fast
     //
-    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || 
+    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) ||
         (nextStepPeriod_InUS < desiredPeriod_InUSPerStep))
       slowDownFlag = true;
-    else 
+    else
       speedUpFlag = true;
    }
 
@@ -1113,13 +1113,13 @@ void FlexyStepper::DeterminePeriodOfNextStep()
   else if ((directionOfMotion == -1) && (targetInNegativeDirectionFlag))
   {
     //
-    // check if need to start slowing down as we reach the target, or if we 
+    // check if need to start slowing down as we reach the target, or if we
     // need to slow down because we are going too fast
     //
-    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) || 
+    if ((distanceToTarget_Unsigned < decelerationDistance_InSteps) ||
         (nextStepPeriod_InUS < desiredPeriod_InUSPerStep))
       slowDownFlag = true;
-    else 
+    else
       speedUpFlag = true;
    }
 
@@ -1153,14 +1153,14 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 - a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS - acceleration_InStepsPerUSPerUS * 
+    nextStepPeriod_InUS = currentStepPeriod_InUS - acceleration_InStepsPerUSPerUS *
       currentStepPeriodSquared * currentStepPeriod_InUS;
 
     if (nextStepPeriod_InUS < desiredPeriod_InUSPerStep)
       nextStepPeriod_InUS = desiredPeriod_InUSPerStep;
   }
 
-  
+
   //
   // check if decelerating
   //
@@ -1169,7 +1169,7 @@ void FlexyStepper::DeterminePeriodOfNextStep()
     //
     // StepPeriod = StepPeriod(1 + a * StepPeriod^2)
     //
-    nextStepPeriod_InUS = currentStepPeriod_InUS + acceleration_InStepsPerUSPerUS * 
+    nextStepPeriod_InUS = currentStepPeriod_InUS + acceleration_InStepsPerUSPerUS *
       currentStepPeriodSquared * currentStepPeriod_InUS;
 
     if (nextStepPeriod_InUS > periodOfSlowestStep_InUS)
